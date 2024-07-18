@@ -1,0 +1,650 @@
+<html><head><base href="https://websim.ai/apps/tattoo-stencil-maker/">
+<title>TattooStencilPro - Conversor Artístico Optimizado</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+
+  :root {
+    --primary-color: #3f51b5;
+    --secondary-color: #536dfe;
+    --background-color: #121212;
+    --text-color: #ffffff;
+    --card-color: #1e1e1e;
+    --accent-color: #7986cb;
+    --control-bg: #2a2a2a;
+  }
+
+  body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    touch-action: manipulation;
+  }
+
+  .app-container {
+    max-width: 100%;
+    width: 95%;
+    background-color: var(--card-color);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+  }
+
+  h1 {
+    color: var(--primary-color);
+    text-align: center;
+    font-size: 1.8em;
+    margin-bottom: 20px;
+    font-weight: 700;
+  }
+
+  .upload-section {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  #imageUpload {
+    display: none;
+  }
+
+  .upload-btn {
+    background-color: var(--primary-color);
+    color: var(--text-color);
+    padding: 12px 24px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: all 0.2s ease;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: inline-block;
+    margin-bottom: 10px;
+  }
+
+  .upload-btn:hover, .upload-btn:active {
+    background-color: var(--secondary-color);
+    transform: translateY(-2px);
+  }
+
+  .algorithm-select, .controls {
+    background-color: var(--control-bg);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+  }
+
+  .control-group {
+    margin-bottom: 15px;
+  }
+
+  .control-group:last-child {
+    margin-bottom: 0;
+  }
+
+  .control-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: var(--accent-color);
+  }
+
+  .slider, select {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 40px;
+    border-radius: 20px;
+    background: #4a4a4a;
+    outline: none;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+    color: var(--text-color);
+    font-size: 1em;
+    padding: 0 10px;
+  }
+
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--accent-color);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .slider::-moz-range-thumb {
+    width: 30px;
+    height: 30px;
+    border: none;
+    border-radius: 50%;
+    background: var(--accent-color);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .slider-value {
+    text-align: center;
+    font-size: 1em;
+    margin-top: 5px;
+  }
+
+  .image-container {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    overflow: hidden;
+    border-radius: 4px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    background-color: #fff;
+    touch-action: none;
+    margin-top: 20px;
+  }
+
+  #originalImage, #stencilImage {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+  }
+
+  #stencilImage {
+    clip-path: inset(0 50% 0 0);
+  }
+
+  #comparisonSlider {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: var(--accent-color);
+    left: 50%;
+    cursor: ew-resize;
+    transition: all 0.2s ease;
+  }
+
+  #comparisonSlider::after {
+    content: '↔';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    background: var(--accent-color);
+    color: var(--text-color);
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  }
+
+  .download-btn {
+    display: block;
+    width: 100%;
+    margin: 20px auto 0;
+    padding: 15px;
+    background-color: var(--primary-color);
+    color: var(--text-color);
+    text-align: center;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 1em;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .download-btn:hover, .download-btn:active {
+    background-color: var(--secondary-color);
+    transform: translateY(-2px);
+  }
+
+  #errorMessage {
+    color: #ff5252;
+    text-align: center;
+    margin-top: 20px;
+    font-weight: 500;
+  }
+
+  .count-container {
+    text-align: center;
+    margin-top: 10px;
+  }
+
+  #comparisonCount {
+    font-size: 1.2em;
+    color: var(--text-color);
+    font-weight: 500;
+  }
+
+  #algorithmInfo {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: var(--control-bg);
+    border-radius: 4px;
+    font-size: 0.9em;
+    line-height: 1.5;
+  }
+
+  .zoom-controls {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+  }
+
+  .zoom-btn {
+    background-color: var(--primary-color);
+    color: var(--text-color);
+    border: none;
+    padding: 10px 15px;
+    margin: 0 5px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: all 0.2s ease;
+  }
+
+  .zoom-btn:hover {
+    background-color: var(--secondary-color);
+  }
+
+  .zoom-btn.active {
+    background-color: var(--secondary-color);
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+  <div class="app-container">
+    <h1>TattooStencilPro - Conversor Artístico</h1>
+    <div class="upload-section">
+      <input type="file" id="imageUpload" accept="image/*">
+      <label for="imageUpload" class="upload-btn">Subir Imagen</label>
+    </div>
+    <div id="errorMessage"></div>
+    <div class="algorithm-select">
+      <div class="control-group">
+        <label for="algorithmSelect">Estilo de Conversión</label>
+        <select id="algorithmSelect" class="slider">
+          <option value="1" selected>1. Umbralización adaptativa</option>
+          <option value="2">2. Estilo de boceto a lápiz</option>
+          <option value="3">3. Contorno simple</option>
+        </select>
+      </div>
+    </div>
+    <div class="image-container">
+      <img id="originalImage" alt="Imagen original subida" src="about:blank" width="300" height="300">
+      <img id="stencilImage" alt="Imagen convertida a plantilla" src="about:blank" width="300" height="300">
+      <div id="comparisonSlider"></div>
+    </div>
+    <div class="zoom-controls">
+      <button class="zoom-btn active" data-zoom="1">100%</button>
+      <button class="zoom-btn" data-zoom="1.5">150%</button>
+      <button class="zoom-btn" data-zoom="2">200%</button>
+    </div>
+    <div class="count-container">
+      <span id="comparisonCount">50%</span>
+    </div>
+    <div class="controls">
+      <div class="control-group">
+        <label for="thresholdSlider">Intensidad</label>
+        <input type="range" id="thresholdSlider" class="slider" min="0" max="255" value="128">
+        <div class="slider-value" id="thresholdValue">128</div>
+      </div>
+      <div class="control-group">
+        <label for="detailSlider">Nivel de Detalle</label>
+        <input type="range" id="detailSlider" class="slider" min="1" max="20" value="10">
+        <div class="slider-value" id="detailValue">10</div>
+      </div>
+      <div class="control-group">
+        <label for="brightnessSlider">Brillo</label>
+        <input type="range" id="brightnessSlider" class="slider" min="-100" max="180" value="0">
+        <div class="slider-value" id="brightnessValue">0</div>
+      </div>
+    </div>
+    <a href="#" class="download-btn" id="downloadBtn" download="artistic-stencil.png">Descargar Plantilla</a>
+    <div id="algorithmInfo"></div>
+  </div>
+
+  <script>
+    const imageUpload = document.getElementById('imageUpload');
+    const originalImage = document.getElementById('originalImage');
+    const stencilImage = document.getElementById('stencilImage');
+    const algorithmSelect = document.getElementById('algorithmSelect');
+    const thresholdSlider = document.getElementById('thresholdSlider');
+    const detailSlider = document.getElementById('detailSlider');
+    const brightnessSlider = document.getElementById('brightnessSlider');
+    const comparisonSlider = document.getElementById('comparisonSlider');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const errorMessage = document.getElementById('errorMessage');
+    const comparisonCount = document.getElementById('comparisonCount');
+    const algorithmInfo = document.getElementById('algorithmInfo');
+    const imageContainer = document.querySelector('.image-container');
+    const thresholdValue = document.getElementById('thresholdValue');
+    const detailValue = document.getElementById('detailValue');
+    const brightnessValue = document.getElementById('brightnessValue');
+    const zoomButtons = document.querySelectorAll('.zoom-btn');
+
+    const algorithms = [
+      {
+        name: "Umbralización adaptativa",
+        description: "Ajusta dinámicamente el umbral según las áreas locales de la imagen, mejorando el contraste y capturando detalles finos."
+      },
+      {
+        name: "Estilo de boceto a lápiz",
+        description: "Simula el efecto de un dibujo a lápiz, creando un aspecto artístico y esbozado."
+      },
+      {
+        name: "Contorno simple",
+        description: "Extrae los contornos principales de la imagen, creando un estilo de línea limpio y minimalista."
+      }
+    ];
+
+    let processingTimeout;
+    let currentZoom = 1;
+
+    imageUpload.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          originalImage.src = event.target.result;
+          originalImage.onload = function() {
+            errorMessage.textContent = '';
+            processImageDebounced();
+          }
+        }
+        reader.onerror = function() {
+          errorMessage.textContent = 'Error al cargar la imagen. Por favor, intenta de nuevo.';
+        }
+        reader.readAsDataURL(file);
+      }
+    });
+
+    [algorithmSelect, thresholdSlider, detailSlider, brightnessSlider].forEach(control => {
+      control.addEventListener('input', updateSliderValue);
+      control.addEventListener('change', processImageDebounced);
+    });
+
+    function updateSliderValue(e) {
+      const value = e.target.value;
+      switch(e.target.id) {
+        case 'thresholdSlider':
+          thresholdValue.textContent = value;
+          break;
+        case 'detailSlider':
+          detailValue.textContent = value;
+          break;
+        case 'brightnessSlider':
+          brightnessValue.textContent = value;
+          break;
+      }
+      processImageDebounced();
+    }
+
+    function processImageDebounced() {
+      clearTimeout(processingTimeout);
+      processingTimeout = setTimeout(processImage, 100);
+    }
+
+    algorithmSelect.addEventListener('change', function() {
+      const selectedAlgorithm = algorithms[this.value - 1];
+      algorithmInfo.textContent = `${selectedAlgorithm.name}: ${selectedAlgorithm.description}`;
+      processImageDebounced();
+    });
+
+    function processImage() {
+      if (!originalImage.complete || originalImage.naturalWidth === 0) {
+        errorMessage.textContent = 'Por favor, sube una imagen primero.';
+        return;
+      }
+
+      errorMessage.textContent = '';
+
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = originalImage.naturalWidth;
+      canvas.height = originalImage.naturalHeight;
+      
+      try {
+        ctx.drawImage(originalImage, 0, 0);
+        let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        let data = imageData.data;
+
+        const algorithmIndex = parseInt(algorithmSelect.value);
+        const threshold = parseInt(thresholdSlider.value);
+        const detailLevel = parseInt(detailSlider.value);
+        const brightness = parseInt(brightnessSlider.value);
+
+        // Apply brightness adjustment
+        applyBrightness(data, brightness);
+
+        switch (algorithmIndex) {
+          case 1:
+            applyAdaptiveThresholding(data, canvas.width, canvas.height, threshold, detailLevel);
+            break;
+          case 2:
+            applyPencilSketchEffect(data, canvas.width, canvas.height, threshold, detailLevel);
+            break;
+          case 3:
+            applySimpleContour(data, canvas.width, canvas.height, threshold);
+            break;
+        }
+
+        ctx.putImageData(imageData, 0, 0);
+        stencilImage.src = canvas.toDataURL();
+        downloadBtn.href = canvas.toDataURL();
+      } catch (error) {
+        console.error('Error al procesar la imagen:', error);
+        errorMessage.textContent = 'Error al procesar la imagen. Por favor, intenta con otra imagen o ajusta los parámetros.';
+      }
+    }
+
+    function applyBrightness(data, brightness) {
+      for (let i = 0; i < data.length; i += 4) {
+        data[i] = Math.min(255, Math.max(0, data[i] + brightness));
+        data[i + 1] = Math.min(255, Math.max(0, data[i + 1] + brightness));
+        data[i + 2] = Math.min(255, Math.max(0, data[i + 2] + brightness));
+      }
+    }
+
+    function applyAdaptiveThresholding(data, width, height, threshold, detailLevel) {
+      const grayscale = new Uint8Array(width * height);
+      for (let i = 0; i < data.length; i += 4) {
+        grayscale[i / 4] = (data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114);
+      }
+
+      const blockSize = Math.max(3, Math.floor(21 - detailLevel));
+      const C = threshold / 255 * -10;
+
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          let sum = 0, count = 0;
+          for (let by = -blockSize; by <= blockSize; by++) {
+            for (let bx = -blockSize; bx <= blockSize; bx++) {
+              const nx = Math.min(Math.max(x + bx, 0), width - 1);
+              const ny = Math.min(Math.max(y + by, 0), height - 1);
+              sum += grayscale[ny * width + nx];
+              count++;
+            }
+          }
+          const avgThreshold = sum / count + C;
+          const idx = (y * width + x) * 4;
+          const pixelValue = grayscale[y * width + x] > avgThreshold ? 255 : 0;
+          data[idx] = data[idx + 1] = data[idx + 2] = pixelValue;
+        }
+      }
+    }
+
+    function applyPencilSketchEffect(data, width, height, threshold, detailLevel) {
+      const grayscale = new Uint8Array(width * height);
+      for (let i = 0; i < data.length; i += 4) {
+        grayscale[i / 4] = (data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114);
+      }
+
+      const inverted = new Uint8Array(grayscale.length);
+      for (let i = 0; i < grayscale.length; i++) {
+        inverted[i] = 255 - grayscale[i];
+      }
+
+      const blurred = gaussianBlur(inverted, width, height, detailLevel / 10);
+
+      for (let i = 0; i < data.length; i += 4) {
+        const value = Math.min(grayscale[i / 4] + (255 - blurred[i / 4]) * (threshold / 255), 255);
+        data[i] = data[i + 1] = data[i + 2] = value;
+      }
+    }
+
+    function applySimpleContour(data, width, height, threshold) {
+      const grayscale = new Uint8Array(width * height);
+      for (let i = 0; i < data.length; i += 4) {
+        grayscale[i / 4] = (data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114);
+      }
+
+      const edges = new Uint8Array(width * height);
+      const sobelX = [-1, 0, 1, -2, 0, 2, -1, 0, 1];
+      const sobelY = [-1, -2, -1, 0, 0, 0, 1, 2, 1];
+
+      for (let y = 1; y < height - 1; y++) {
+        for (let x = 1; x < width - 1; x++) {
+          let pixelX = 0, pixelY = 0;
+          for (let j = -1; j <= 1; j++) {
+            for (let i = -1; i <= 1; i++) {
+              const idx = ((y + j) * width + (x + i));
+              pixelX += grayscale[idx] * sobelX[(j + 1) * 3 + (i + 1)];
+              pixelY += grayscale[idx] * sobelY[(j + 1) * 3 + (i + 1)];
+            }
+          }
+          const magnitude = Math.sqrt(pixelX * pixelX + pixelY * pixelY);
+          edges[y * width + x] = magnitude > threshold ? 255 : 0;
+        }
+      }
+
+      for (let i = 0; i < data.length; i += 4) {
+        const value = edges[i / 4] === 255 ? 0 : 255;
+        data[i] = data[i + 1] = data[i + 2] = value;
+      }
+    }
+
+    function gaussianBlur(data, width, height, sigma) {
+      const kernel = generateGaussianKernel(sigma);
+      return applyKernel(data, width, height, kernel);
+    }
+
+    function generateGaussianKernel(sigma) {
+      const size = Math.ceil(sigma * 3);
+      const kernel = [];
+      let sum = 0;
+
+      for (let y = -size; y <= size; y++) {
+        kernel[y + size] = [];
+        for (let x = -size; x <= size; x++) {
+          const value = Math.exp(-(x * x + y * y) / (2 * sigma * sigma));
+          kernel[y + size][x + size] = value;
+          sum += value;
+        }
+      }
+
+      for (let y = 0; y < kernel.length; y++) {
+        for (let x = 0; x < kernel.length; x++) {
+          kernel[y][x] /= sum;
+        }
+      }
+
+      return kernel;
+    }
+
+    function applyKernel(data, width, height, kernel) {
+      const result = new Uint8Array(data.length);
+      const kSize = kernel.length;
+      const kOffset = Math.floor(kSize / 2);
+
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          let sum = 0;
+          for (let ky = 0; ky < kSize; ky++) {
+            for (let kx = 0; kx < kSize; kx++) {
+              const px = Math.min(Math.max(x + kx - kOffset, 0), width - 1);
+              const py = Math.min(Math.max(y + ky - kOffset, 0), height - 1);
+              sum += data[py * width + px] * kernel[ky][kx];
+            }
+          }
+          result[y * width + x] = sum;
+        }
+      }
+
+      return result;
+    }
+
+    let isDragging = false;
+    let startX;
+
+    function onStart(e) {
+      isDragging = true;
+      startX = e.type === 'mousedown' ? e.clientX : e.touches[0].clientX;
+    }
+
+    function onMove(e) {
+      if (!isDragging) return;
+      e.preventDefault();
+      const clientX = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX;
+      const rect = imageContainer.getBoundingClientRect();
+      const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
+      const percent = (x / rect.width) * 100;
+      comparisonSlider.style.left = percent + '%';
+      stencilImage.style.clipPath = `inset(0 ${100 - percent}% 0 0)`;
+      comparisonCount.textContent = Math.round(percent) + '%';
+    }
+
+    function onEnd() {
+      isDragging = false;
+    }
+
+    comparisonSlider.addEventListener('mousedown', onStart);
+    comparisonSlider.addEventListener('touchstart', onStart);
+
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('touchmove', onMove, { passive: false });
+
+    document.addEventListener('mouseup', onEnd);
+    document.addEventListener('touchend', onEnd);
+
+    [originalImage, stencilImage].forEach(img => {
+      img.addEventListener('dragstart', (e) => e.preventDefault());
+    });
+
+    const initialAlgorithm = algorithms[algorithmSelect.value - 1];
+    algorithmInfo.textContent = `${initialAlgorithm.name}: ${initialAlgorithm.description}`;
+
+    function updateZoom(zoom) {
+      currentZoom = zoom;
+      originalImage.style.transform = `scale(${currentZoom})`;
+      stencilImage.style.transform = `scale(${currentZoom})`;
+      zoomButtons.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.zoom == currentZoom);
+      });
+    }
+
+    zoomButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        updateZoom(parseFloat(btn.dataset.zoom));
+      });
+    });
+  </script>
+</body>
+</html>
